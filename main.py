@@ -1,86 +1,79 @@
-import sys
-
 import yaml
+import sys
+import os
+from jinja2 import Environment, FileSystemLoader
 
-from rich.logging import RichHandler
-import logging
+# --- Helper Function for Jinja ---
+def bits_to_mask(bit_range):
+    """
+    Converts a SystemRDL-like bit range string (e.g., '15:4') into a C++ hex mask.
+    This function will be registered as a Jinja filter.
+    """
+    if not isinstance(bit_range, list):
+        print(f"Not a list: {bit_range}") # TODO: Error
+    # Handle the YAML list format: [ 15, 4 ]
+    print(bit_range)
+    high, low = bit_range[0], bit_range[1]
+    print(high, low)
 
-# Set up logging
-logging.basicConfig(
-    level="INFO",
-    format="%(message)s",
-    datefmt="[%X]",
-    handlers=[RichHandler(rich_tracebacks=True)]
-)
-log = logging.getLogger("rdl_compiler")
+    width = high - low + 1
+    # Create the mask (e.g., for 15:4, mask is 0xFFF0)
+    mask = ((1 << width) - 1) << low
+    return f"0x{mask:0{mask.bit_length() // 4 + 1}X}"
 
-from rich import print
 
-# def process_template(template_path: str, output_path: str, public_registers_string: str, public_enum_string: str, private_registers_string: str) -> None:
-#     """Processes a template file by replacing placeholders with generated code, maintaining indentation."""
-#     try:
-#         with open(template_path, "r") as template_file:
-#             template_content = template_file.read()
-#
-#         # Find indentation of placeholders
-#         public_indent = find_indentation(template_content, "/**{PUBLIC_REG}**/")
-#         enum_indent = find_indentation(template_content, "/**{PUBLIC_ENUM}**/")
-#         private_indent = find_indentation(template_content, "/**{PRIVATE_REG}**/")
-#
-#         # Apply indentation to generated strings
-#         indented_public_registers = apply_indentation(public_registers_string, public_indent)
-#         indented_public_enum = apply_indentation(public_enum_string, enum_indent)
-#         indented_private_registers = apply_indentation(private_registers_string, private_indent)
-#
-#         # Replace placeholders
-#         modified_content = template_content.replace("/**{PUBLIC_REG}**/", indented_public_registers).replace("/**{PUBLIC_ENUM}**/", indented_public_enum).replace("/**{PRIVATE_REG}**/", indented_private_registers)
-#
-#         with open(output_path, "w") as output_file:
-#             output_file.write(modified_content)
-#         print(f"Template processed and saved to: {output_path}")
-#
-#     except FileNotFoundError:
-#         print(f"Error: Template file not found at {template_path}")
-#     except Exception as e:
-#         log.exception(f"An error occurred: {e}", exc_info=e)
-#
-# def find_indentation(content: str, placeholder: str) -> str:
-#     """Finds the indentation of a placeholder on the same line in the template content, considering the last preceding newline."""
-#     escaped_placeholder = re.escape(placeholder)
-#     pattern = rf"(?P<preceding>(?:\n|^).*?(?P<indent>\s*){escaped_placeholder})"
-#     match = re.search(pattern, content, re.MULTILINE | re.DOTALL)  # Added flags
-#
-#     if match:
-#         preceding = match.group("preceding")
-#         last_newline_pos = preceding.rfind('\n')  # Find the last newline
-#         if last_newline_pos != -1:
-#             indent_start = last_newline_pos + 1
-#         else:
-#             indent_start = 0  # Start of string
-#
-#         indent_match = re.search(r"^\s*", preceding[indent_start:])
-#         if indent_match:
-#             return indent_match.group(0)
-#         else:
-#             return ""
-#     else:
-#         return ""
-#
-# def apply_indentation(content: str, indent: str) -> str:
-#     """Applies indentation to each line of the generated content."""
-#     lines = content.splitlines()
-#     indented_lines = [f"{indent}{line}" if line.strip() else "" for line in lines]
-#     if len(indented_lines) > 0:
-#         indented_lines[0] = indented_lines[0][len(indent):] # Remove the indent that is present due to the location of the comment in the template
-#     return "\n".join(indented_lines)
+def generate_cpp_header(yaml_data, template_path, output_path):
+    """
+    Loads data, configures Jinja, and generates the C++ header file.
+    """
+    try:
+        # Setup Jinja Environment
+        # FileSystemLoader looks for templates in the current directory
+        file_loader = FileSystemLoader('.')
+        env = Environment(loader=file_loader, trim_blocks=True, lstrip_blocks=True)
+
+        # Register the custom filter
+        env.filters['bits_to_mask'] = bits_to_mask
+
+        # Load the template
+        template = env.get_template(template_path)
+
+        # Execute the template against the entire YAML data structure
+        cpp_output = template.render(spec=yaml_data)
+
+        # Write the output file
+        with open(output_path, 'w') as f:
+            f.write(cpp_output)
+
+        print(f"Successfully generated C++ header: {output_path}")
+
+    except Exception as e:
+        print(f"Error during code generation: {e}")
+        sys.exit(1)
 
 
 if __name__ == '__main__':
-    input_files = sys.argv[1]
-    try:
-        with open(input_files, 'r') as f:
-            data = yaml.safe_load(f)
-            print(data)
-    except Exception as e:
-        log.exception(f"An unexpected error occurred: ", exc_info=e)
+    # Define file paths
+    yaml_file = 'TMP1075N.yaml'
+    template_file = 'chip_cpp.jinja'
+    output_file = 'TMP1075N_Regs.hpp'
+
+    # Check for input files
+    if not os.path.exists(yaml_file):
+        print(f"Error: Input YAML file not found at {yaml_file}")
         sys.exit(1)
+    if not os.path.exists(template_file):
+        print(f"Error: Jinja template file not found at {template_file}")
+        sys.exit(1)
+
+    # Load YAML data
+    try:
+        with open(yaml_file, 'r') as f:
+            spec_data = yaml.safe_load(f)
+    except Exception as e:
+        print(f"Error loading YAML data: {e}")
+        sys.exit(1)
+
+    # Start generation
+    generate_cpp_header(spec_data, template_file, output_file)
+
