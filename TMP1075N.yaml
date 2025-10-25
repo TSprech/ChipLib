@@ -1,0 +1,140 @@
+chip: TMP1075N
+manufacturer: Texas Instruments
+interface: [ I2C ]
+description: "Register descriptions for the TMP1075N Temperature Sensor With I2C and Alert"
+register_width: 16
+
+enums:
+  - symbol: SD
+    values:
+      - name: Continuous Conversion
+        value: 0b0
+        description: "Device is in continuous conversion"
+      - name: Shutdown
+        value: 0b1
+        description: "Device is in shutdown mode"
+
+  - symbol: TM
+    values:
+      - name: Comparator
+        value: 0b0
+        description: "ALERT pin functions in comparator mode"
+      - name: Interrupt
+        value: 0b1
+        description: "ALERT pin functions in interrupt mode"
+
+  - symbol: R
+    values:
+      - name: Conversion Rate 27 5
+        value: 0b00
+        description: "27.5 ms conversion rate"
+      - name: Conversion Rate 55
+        value: 0b01
+        description: "55 ms conversion rate"
+      - name: Conversion Rate 110
+        value: 0b10
+        description: "110 ms conversion rate"
+      - name: Conversion Rate 250
+        value: 0b11
+        description: "250 ms conversion rate"
+
+  - symbol: POL
+    values:
+      - name: Low
+        value: 0b0
+        description: "Active low ALERT pin"
+      - name: High
+        value: 0b1
+        description: "Active high ALERT pin"
+
+  - symbol: F
+    values:
+      - name: Fault 1
+        value: 0b00
+        description: "1 fault"
+      - name: Fault 2
+        value: 0b01
+        description: "2 faults"
+      - name: Fault 4
+        value: 0b10
+        description: "4 faults"
+      - name: Fault 6
+        value: 0b11
+        description: "6 faults"
+
+registers:
+  - address: 0x00
+    name: Temperature
+    symbol: TEMP
+    reset: 0x0000
+    fields:
+      - name: Temperature
+        symbol: T
+        bits: [ 15:4 ]
+        description: "12-bit, read-only register that stores the most recent temperature conversion results"
+
+  - address: 0x01
+    name: Configuration
+    symbol: CFGR
+    reset: 0x60A0
+    fields:
+      - name: One Shot
+        symbol: OS
+        bits: [ 15:15 ]
+        description: "One-shot conversion mode. Writing 1, starts a single temperature conversion. Read returns 0."
+
+      - name: Conversion Rate
+        symbol: R
+        bits: [ 14:13 ]
+        description: "Conversion rate setting when device is in continuous conversion mode"
+        enum: R
+        reset: conversion_rate_250
+
+      - name: Consecutive Fault Count
+        symbol: F
+        bits: [ 12:11 ]
+        description: "Consecutive fault measurements to trigger the alert function"
+        enum: F
+        reset: fault_1
+
+      - name: Alert Polarity
+        symbol: POL
+        bits: [ 10:10 ]
+        description: "Polarity of the output pin"
+        enum: POL
+        reset: low
+
+      - name: Alert Mode
+        symbol: TM
+        bits: [ 9:9 ]
+        description: "Selects the function of the ALERT pin"
+        enum: TM
+        reset: comparator
+
+      - name: Shutdown
+        symbol: SD
+        bits: [ 8:8 ]
+        enum: SD
+        description: "Sets the device in shutdown mode to conserve power"
+
+  - address: 0x02
+    name: Low Limit Register
+    symbol: LLIM
+    reset: 0x4B00
+    fields:
+      name: Low Limit
+      symbol: L
+      bits: [ 15:4 ]
+      description: "12-bit, read-write register that stores the low limit for comparison with temperature results."
+      reset: 0x4B0
+
+  - address: 0x03
+    name: High Limit Register
+    symbol: HLIM
+    reset: 0x5000
+    fields:
+      name: High Limit
+      symbol: H
+      bits: [ 15:4 ]
+      description: "12-bit, read-write register that stores the high limit for comparison with temperature results."
+      reset: 0x500
