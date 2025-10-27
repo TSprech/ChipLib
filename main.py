@@ -19,7 +19,7 @@ def bits_to_mask(bit_range):
     width = high - low + 1
     # Create the mask (e.g., for 15:4, mask is 0xFFF0)
     mask = ((1 << width) - 1) << low
-    return f"0x{mask:0{mask.bit_length() // 4 + 1}X}"
+    return f"0x{mask:0{mask.bit_length() // 4}X}"
 
 
 def generate_cpp_header(yaml_data, template_path, output_path):

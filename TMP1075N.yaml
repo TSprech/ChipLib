@@ -3,6 +3,7 @@ manufacturer: Texas Instruments
 interface: [ I2C ]
 description: "Register descriptions for the TMP1075N Temperature Sensor With I2C and Alert"
 register_width: 16
+access: [ r, w ]
 
 enums:
   - symbol: SD
@@ -70,7 +71,8 @@ registers:
     fields:
       - name: Temperature
         symbol: T
-        bits: [15, 4]
+        bits: [ 15, 4 ]
+        access: [ r ]
         description: "12-bit, read-only register that stores the most recent temperature conversion results"
 
   - address: 0x01
@@ -80,40 +82,42 @@ registers:
     fields:
       - name: One Shot
         symbol: OS
-        bits: [15, 15]
+        bits: [ 15, 15 ]
+        access: [ woset ]
         description: "One-shot conversion mode. Writing 1, starts a single temperature conversion. Read returns 0."
 
       - name: Conversion Rate
         symbol: R
-        bits: [14, 13]
+        bits: [ 14, 13 ]
+        access: [ r ]
         description: "Conversion rate setting when device is in continuous conversion mode"
         enum: R
         reset: conversion_rate_250
 
       - name: Consecutive Fault Count
         symbol: F
-        bits: [12, 11]
+        bits: [ 12, 11 ]
         description: "Consecutive fault measurements to trigger the alert function"
         enum: F
         reset: fault_1
 
       - name: Alert Polarity
         symbol: POL
-        bits: [10, 10]
+        bits: [ 10, 10 ]
         description: "Polarity of the output pin"
         enum: POL
         reset: low
 
       - name: Alert Mode
         symbol: TM
-        bits: [9, 9]
+        bits: [ 9, 9 ]
         description: "Selects the function of the ALERT pin"
         enum: TM
         reset: comparator
 
       - name: Shutdown
         symbol: SD
-        bits: [8, 8]
+        bits: [ 8, 8 ]
         enum: SD
         description: "Sets the device in shutdown mode to conserve power"
 
@@ -124,7 +128,7 @@ registers:
     fields:
       - name: Low Limit
         symbol: L
-        bits: [15, 4]
+        bits: [ 15, 4 ]
         description: "12-bit, read-write register that stores the low limit for comparison with temperature results."
         reset: 0x4B0
 
@@ -135,6 +139,6 @@ registers:
     fields:
       - name: High Limit
         symbol: H
-        bits: [15, 4]
+        bits: [ 15, 4 ]
         description: "12-bit, read-write register that stores the high limit for comparison with temperature results."
         reset: 0x500

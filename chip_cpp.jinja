@@ -38,8 +38,13 @@ class {{ spec.chip }} {
   {%- set bits = field.bits %}
   {%- set mask = bits | bits_to_mask %}
   {%- set low = bits[1] %}
+  {% if field.access is defined %}
+    {%- set access = field.access %}
+  {% else %}
+    {%- set access = spec.access %}
+  {% endif %}
 
-
+{% if 'w' in access %}
   /**
    * @brief W | {{ field.description }}
    * @note {{ reg.name }} [{{ reg.symbol }}] | {{ field.name }} [{{ field.symbol }}] | Bits {{ bits[0] }}:{{ bits[1] }}
@@ -49,9 +54,10 @@ class {{ spec.chip }} {
   [[nodiscard("Function returns expected which represents success or failure")]]
   auto {{ func_name }}({% if is_enum %}{{ field.enum }}_Options{% else %}uint{{ width }}_t{% endif %} value) -> std::expected<void, std::error_code> {
     this->{{ reg.symbol | lower }}_ = register_parser::parse::Register{{ width }}Bit(this->{{ reg.symbol | lower }}_, {{ mask }}, static_cast<uint{{ width }}_t>(value));
-    return {% if is_enum %}static_cast<{{ field.enum }}_Options>({% endif %}register_parser::parse::Register{{ width }}Bit(this->{{ reg.symbol | lower }}_, {{ mask }}){% if is_enum %}){% endif %};
+    return this->Write{{ width }}(this->{{ reg.symbol | lower }}_, {{ mask }});
   }
-
+{% endif %}
+{% if 'r' in access %}
   /**
    * @brief R | {{ field.description }}
    * @note {{ reg.name }} [{{ reg.symbol }}] | {{ field.name }} [{{ field.symbol }}] | Bits {{ bits[0] }}:{{ bits[1] }}
@@ -63,6 +69,19 @@ class {{ spec.chip }} {
     else [[likely]] this->{{ reg.symbol | lower }}_ = read_result.value();
     return {% if is_enum %}static_cast<{{ field.enum }}_Options>({% endif %}register_parser::parse::Register{{ width }}Bit(this->{{ reg.symbol | lower }}_, {{ mask }}{% if is_enum %}){% endif %});
   }
+{% endif %}
+{% if 'woset' in access %}
+  /**
+   * @brief WOSET | {{ field.description }}
+   * @note {{ reg.name }} [{{ reg.symbol }}] | {{ field.name }} [{{ field.symbol }}] | Bits {{ bits[0] }}:{{ bits[1] }}
+   * @returns std::expected<void, std::error_code> Returns void on success, error code on failure.
+   */
+  [[nodiscard("Function returns expected which represents success or failure")]]
+  auto {{ func_name }}() -> std::expected<void, std::error_code> {
+    this->{{ reg.symbol | lower }}_ = register_parser::parse::Register{{ width }}Bit(this->{{ reg.symbol | lower }}_, {{ mask }}, static_cast<uint{{ width }}_t>(0b1));
+    return this->Write{{ width }}(this->{{ reg.symbol | lower }}_, {{ mask }});
+  }
+{% endif %}
 
 {%- endfor %}
 {%- endfor %}
@@ -76,7 +95,7 @@ class {{ spec.chip }} {
   // --- PRIVATE REGISTER STATE (Cached Values) ---
 {%- for reg in spec.registers %}
   // R/W registers need a cached value to perform read-modify-write cycles
-  uint{{ spec.register_width }}_t {{ reg.symbol | lower }}_ = {{ '0x%x' | format(reg.reset) }}; // Default: {{ reg.reset }}
+  uint{{ spec.register_width }}_t {{ reg.symbol | lower }}_ = {{ '0x%X' | format(reg.reset) }}; // Default: {{ reg.reset }}
 {%- endfor %}
 };
 
