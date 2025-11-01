@@ -33,11 +33,11 @@ def test_bits_to_mask_invalid_input(caplog):
 ])
 
 def test_setup_logging_valid(int_level, logging_level):
-    """Tests that the mask generation is correct for various valid inputs."""
+    """Tests that the logging level is correct for various valid inputs."""
     assert setup_logging(int_level).level == logging_level
 
 def test_setup_logging_invalid():
-    """Tests that the mask generation is correct for various valid inputs."""
+    """Tests that the logging level is correct for various invalid inputs."""
     assert setup_logging(3).level == logging.WARNING
 
 
