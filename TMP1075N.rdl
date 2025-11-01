@@ -1,0 +1,115 @@
+property reset_default {
+    type = number;           // The property will store a boolean value
+    component = reg;            // This property can be applied to reg components
+    default = 0;          // If not specified, the default value is false
+};
+
+addrmap TMP1075N {
+  name = "TMP1075N";
+  desc = "Register descriptions for the TMP1075N Temperature Sensor With I2C and Alert";
+
+  default regwidth = 16;
+  default sw = rw;
+  default hw = rw;
+
+  reg {
+    name = "Temperature";
+    reset_default = 0x0000;
+
+    field {
+      name = "Temperature";
+      desc = "12-bit, read-only register that stores the most recent temperature conversion results";
+      sw = r;
+    } T[15:4] = 0x000;
+  } TEMP @ (0x00 << 1);
+
+  reg {
+    name = "Configuration";
+    reset_default = 0x60A0;
+
+    enum SD_enum {
+      continuous_conversion = 1'b0 { desc = "Device is in continuous conversion"; };
+      shutdown = 1'b1 { desc = "Device is in shutdown mode"; };
+    };
+
+    field {
+      name = "Shutdown";
+      desc = "Sets the device in shutdown mode to conserve power";
+      encode = SD_enum;
+    } SD[8:8] = SD_enum::continuous_conversion;
+
+    enum TM_enum {
+      comparator = 1'b0 { desc = "ALERT pin functions in comparator mode"; };
+      interrupt = 1'b1 { desc = "ALERT pin functions in interrupt mode"; };
+    };
+
+    field {
+      name = "AlertMode";
+      desc = "Selects the function of the ALERT pin";
+      encode = TM_enum;
+    } TM[9:9] = TM_enum::comparator;
+
+    enum POL_enum {
+      low = 1'b0 { desc = "Active low ALERT pin"; };
+      high = 1'b1 { desc = "Active high ALERT pin"; };
+    };
+
+    field {
+      name = "AlertPolarity";
+      desc = "Polarity of the output pin";
+      encode = POL_enum;
+    } POL[10:10] = POL_enum::low;
+
+    enum F_enum {
+      fault_1 = 2'b00 { desc = "1 fault"; };
+      fault_2 = 2'b01 { desc = "2 faults"; };
+      fault_4 = 2'b10 { desc = "4 faults"; };
+      fault_6 = 2'b11 { desc = "6 faults"; };
+    };
+
+    field {
+      name = "ConsecutiveFaultCount";
+      desc = "Consecutive fault measurements to trigger the alert function";
+      encode = F_enum;
+    } F [12:11] = F_enum::fault_1;
+
+    enum R_enum {
+      conversion_rate_27_5 = 2'b00 { desc = "27.5 ms conversion rate"; };
+      conversion_rate_55 = 2'b01 { desc = "55 ms conversion rate"; };
+      conversion_rate_110 = 2'b10 { desc = "110 ms conversion rate"; };
+      conversion_rate_250 = 2'b11 { desc = "250 ms conversion rate"; };
+    };
+
+    field {
+      name = "ConversionRate";
+      desc = "Conversion rate setting when device is in continuous conversion mode";
+      sw = r;
+      encode = R_enum;
+    } R [14:13] = R_enum::conversion_rate_250;
+
+    field {
+      name = "OneShot";
+      desc = "One-shot conversion mode. Writing 1, starts a single temperature conversion. Read returns 0.";
+    } OS[15:15] = 0;
+  } CFGR @ (0x01 << 1);
+
+  reg {
+    name = "Low Limit Register";
+    reset_default = 0x4B00;
+
+    field {
+      name = "LowLimit";
+      desc = "12-bit, read-write register that stores the low limit for comparison with temperature results.";
+    } L[15:4] = 0x4B0;
+  } LLIM @ (0x02 << 1);
+
+  reg {
+    name = "High Limit Register";
+    reset_default = 0x5000;
+
+    field {
+      name = "HighLimit";
+      desc = "12-bit, read-write register that stores the high limit for comparison with temperature results.";
+    } H[15:4] = 0x500;
+  } HLIM @ (0x03 << 1);
+};
