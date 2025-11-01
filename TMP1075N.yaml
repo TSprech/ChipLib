@@ -1,3 +1,4 @@
+---
 chip: TMP1075N
 manufacturer: Texas Instruments
 interface: [ I2C ]
@@ -142,3 +143,4 @@ registers:
         bits: [ 15, 4 ]
         description: "12-bit, read-write register that stores the high limit for comparison with temperature results."
         reset: 0x500
+...

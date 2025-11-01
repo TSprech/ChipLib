@@ -37,6 +37,8 @@ def setup_logging(level: int):
         log.addHandler(handler)
         log.propagate = False
 
+    return log
+
 
 def parse_args():
     """Defines and parses command-line arguments using RichHelpFormatter."""
@@ -58,16 +60,14 @@ def parse_args():
         "-t", "--template",
         dest="template_file",
         type=str,
-        default='chip_cpp.jinja',
-        help="Path to the Jinja2 template file. [default: chip_cpp.jinja]",
+        help="Path to the Jinja2 template file.",
     )
 
     parser.add_argument(
         "-o", "--output",
         dest="output_file",
         type=str,
-        default='TMP1075N_Regs.hpp',
-        help="Path for the generated C++ header file. [default: TMP1075N_Regs.hpp]",
+        help="Path for the generated C++ header file.",
     )
 
     # --- Utility Arguments ---
@@ -84,7 +84,7 @@ def parse_args():
 
 
 # --- Helper Function for Jinja ---
-def bits_to_mask(bit_range):
+def bits_to_mask(bit_range: list):
     """
     Converts a bit range list (e.g., [15, 4]) into a C++ hexadecimal mask string.
     """
@@ -148,7 +148,7 @@ if __name__ == '__main__':
 
     if not os.path.exists(args.template_file):
         log.error(f"Jinja template file not found at: [bold red]{args.template_file}[/bold red]")
-        sys.exit(1)
+        sys.exit(2)
 
     # Load YAML data
     try:
@@ -158,7 +158,7 @@ if __name__ == '__main__':
 
     except Exception:
         log.exception(f"Fatal error while loading or parsing YAML file: {args.yaml_file}")
-        sys.exit(1)
+        sys.exit(3)
 
     # Start generation
     try:
@@ -167,4 +167,4 @@ if __name__ == '__main__':
     except Exception:
         # Exception already logged in generate_cpp_header
         log.error("Code generation failed due to a template or output error.")
-        sys.exit(1)
+        sys.exit(4)
