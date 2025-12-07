@@ -32,7 +32,7 @@ class {{ spec.chip }} {
   {% if field.register_width is defined %}
     {% set width = field.register_width %}
   {% else %}
-    {% set width = spec.register_width %}
+    {% set width = spec.defaults.register_width %}
   {% endif %}
   {% set func_name = field.name | title | replace(' ', '') %}
   {%- set bits = field.bits %}
@@ -41,7 +41,7 @@ class {{ spec.chip }} {
   {% if field.access is defined %}
     {%- set access = field.access %}
   {% else %}
-    {%- set access = spec.access %}
+    {%- set access = spec.defaults.access %}
   {% endif %}
 
 {% if 'w' in access %}

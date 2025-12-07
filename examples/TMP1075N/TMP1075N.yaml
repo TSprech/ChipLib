@@ -1,10 +1,13 @@
 ---
 chip: TMP1075N
 manufacturer: Texas Instruments
-interface: [ I2C ]
 description: "Register descriptions for the TMP1075N Temperature Sensor With I2C and Alert"
-register_width: 16
-access: [ r, w ]
+interface: [ I2C, SMBus ]
+
+defaults:
+  register_width: 16
+  byte_order: big
+  access: [ r, w ]
 
 enums:
   - symbol: SD
@@ -75,6 +78,9 @@ registers:
         bits: [ 15, 4 ]
         access: [ r ]
         description: "12-bit, read-only register that stores the most recent temperature conversion results"
+        format:
+          representation: tc
+          unit: "Celsius"
 
   - address: 0x01
     name: Configuration
@@ -93,14 +99,14 @@ registers:
         access: [ r ]
         description: "Conversion rate setting when device is in continuous conversion mode"
         enum: R
-        reset: conversion_rate_250
+        reset: Conversion Rate 250
 
       - name: Consecutive Fault Count
         symbol: F
         bits: [ 12, 11 ]
         description: "Consecutive fault measurements to trigger the alert function"
         enum: F
-        reset: fault_1
+        reset: Fault 1
 
       - name: Alert Polarity
         symbol: POL
@@ -132,6 +138,9 @@ registers:
         bits: [ 15, 4 ]
         description: "12-bit, read-write register that stores the low limit for comparison with temperature results."
         reset: 0x4B0
+        format:
+          representation: tc
+          unit: "Celsius"
 
   - address: 0x03
     name: High Limit Register
@@ -143,4 +152,7 @@ registers:
         bits: [ 15, 4 ]
         description: "12-bit, read-write register that stores the high limit for comparison with temperature results."
         reset: 0x500
+        format:
+          representation: tc
+          unit: "Celsius"
 ...
