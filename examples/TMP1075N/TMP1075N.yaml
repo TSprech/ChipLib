@@ -1,30 +1,17 @@
 ---
 chip: TMP1075N
 manufacturer: Texas Instruments
-interface: [ I2C ]
-description: "Register descriptions for the TMP1075N Temperature Sensor With I2C and Alert"
-register_width: 16
-access: [ r, w ]
+description: "12 Bit local digital temperature sensor with -40°C to 125°C range"
+interface: [ I2C, SMBus ]
+
+
+defaults:
+  register_width: 16
+  byte_order: big
+  access: [ r, w ]
+
 
 enums:
-  - symbol: SD
-    values:
-      - name: Continuous Conversion
-        value: 0b0
-        description: "Device is in continuous conversion"
-      - name: Shutdown
-        value: 0b1
-        description: "Device is in shutdown mode"
-
-  - symbol: TM
-    values:
-      - name: Comparator
-        value: 0b0
-        description: "ALERT pin functions in comparator mode"
-      - name: Interrupt
-        value: 0b1
-        description: "ALERT pin functions in interrupt mode"
-
   - symbol: R
     values:
       - name: Conversion Rate 27 5
@@ -39,15 +26,6 @@ enums:
       - name: Conversion Rate 250
         value: 0b11
         description: "250 ms conversion rate"
-
-  - symbol: POL
-    values:
-      - name: Low
-        value: 0b0
-        description: "Active low ALERT pin"
-      - name: High
-        value: 0b1
-        description: "Active high ALERT pin"
 
   - symbol: F
     values:
@@ -64,6 +42,34 @@ enums:
         value: 0b11
         description: "6 faults"
 
+  - symbol: POL
+    values:
+      - name: Low
+        value: 0b0
+        description: "Active low ALERT pin"
+      - name: High
+        value: 0b1
+        description: "Active high ALERT pin"
+
+  - symbol: TM
+    values:
+      - name: Comparator
+        value: 0b0
+        description: "ALERT pin functions in comparator mode"
+      - name: Interrupt
+        value: 0b1
+        description: "ALERT pin functions in interrupt mode"
+
+  - symbol: SD
+    values:
+      - name: Continuous Conversion
+        value: 0b0
+        description: "Device is in continuous conversion"
+      - name: Shutdown
+        value: 0b1
+        description: "Device is in shutdown mode"
+
+
 registers:
   - address: 0x00
     name: Temperature
@@ -75,6 +81,9 @@ registers:
         bits: [ 15, 4 ]
         access: [ r ]
         description: "12-bit, read-only register that stores the most recent temperature conversion results"
+        format:
+          representation: tc
+          unit: "Celsius"
 
   - address: 0x01
     name: Configuration
@@ -93,28 +102,28 @@ registers:
         access: [ r ]
         description: "Conversion rate setting when device is in continuous conversion mode"
         enum: R
-        reset: conversion_rate_250
+        reset: Conversion Rate 250
 
       - name: Consecutive Fault Count
         symbol: F
         bits: [ 12, 11 ]
         description: "Consecutive fault measurements to trigger the alert function"
         enum: F
-        reset: fault_1
+        reset: Fault 1
 
       - name: Alert Polarity
         symbol: POL
         bits: [ 10, 10 ]
         description: "Polarity of the output pin"
         enum: POL
-        reset: low
+        reset: Low
 
       - name: Alert Mode
         symbol: TM
         bits: [ 9, 9 ]
         description: "Selects the function of the ALERT pin"
         enum: TM
-        reset: comparator
+        reset: Comparator
 
       - name: Shutdown
         symbol: SD
@@ -131,7 +140,10 @@ registers:
         symbol: L
         bits: [ 15, 4 ]
         description: "12-bit, read-write register that stores the low limit for comparison with temperature results."
-        reset: 0x4B0
+        reset: 0x4B00
+        format:
+          representation: tc
+          unit: "Celsius"
 
   - address: 0x03
     name: High Limit Register
@@ -142,5 +154,8 @@ registers:
         symbol: H
         bits: [ 15, 4 ]
         description: "12-bit, read-write register that stores the high limit for comparison with temperature results."
-        reset: 0x500
+        reset: 0x5000
+        format:
+          representation: tc
+          unit: "Celsius"
 ...

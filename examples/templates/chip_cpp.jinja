@@ -7,6 +7,7 @@
 #include <expected>
 #include <system_error>
 #include <utility>
+
 // --- REGISTER CLASS DEFINITION ---
 class {{ spec.chip }} {
  public:
@@ -25,14 +26,14 @@ class {{ spec.chip }} {
 
   {% endfor %}
 
-    // --- PUBLIC FIELD ACCESSORS ---
+  // --- PUBLIC FIELD ACCESSORS ---
 {% for reg in spec.registers %}
 {% for field in reg.fields %}
   {% set is_enum = field.enum is defined %}
   {% if field.register_width is defined %}
     {% set width = field.register_width %}
   {% else %}
-    {% set width = spec.register_width %}
+    {% set width = spec.defaults.register_width %}
   {% endif %}
   {% set func_name = field.name | title | replace(' ', '') %}
   {%- set bits = field.bits %}
@@ -41,7 +42,7 @@ class {{ spec.chip }} {
   {% if field.access is defined %}
     {%- set access = field.access %}
   {% else %}
-    {%- set access = spec.access %}
+    {%- set access = spec.defaults.access %}
   {% endif %}
 
 {% if 'w' in access %}
@@ -93,10 +94,13 @@ class {{ spec.chip }} {
   auto Write(uint8_t addr, uint16_t val) { return m_driver.Write(addr, val); }
 
   // --- PRIVATE REGISTER STATE (Cached Values) ---
-{%- for reg in spec.registers %}
   // R/W registers need a cached value to perform read-modify-write cycles
+
+{%- for reg in spec.registers %}
+
   uint{{ spec.register_width }}_t {{ reg.symbol | lower }}_ = {{ '0x%X' | format(reg.reset) }}; // Default: {{ reg.reset }}
 {%- endfor %}
+
 };
 
 #endif // {{ spec.chip | upper }}_HPP
