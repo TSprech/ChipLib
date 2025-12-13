@@ -1,0 +1,8 @@
+{
+  "label": "Tutorial",
+  "position": 1,
+  "link": {
+    "type": "generated-index",
+    "description": "A tutorial walking you through how to create a ChipLib YAML file"
+  }
+}
