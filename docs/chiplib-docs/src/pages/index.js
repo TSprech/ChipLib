@@ -63,7 +63,7 @@ function HomepageHeader() {
         <div className={styles.buttons}>
           <Link
             className="button button--secondary button--lg"
-            to="/docs/intro">
+            to="/docs/tutorial-tmp1075n/intro">
             Generate your first library in 5 min ⏱️
           </Link>
         </div>
@@ -85,7 +85,7 @@ function HighlightSection() {
               generate production-ready, language-agnostic code.
             </p>
             <p>
-              Handles complex register maps, bit-fields, and enums with ease.
+              Handle complex register maps, bit-fields, and enums with ease. Create libraries according to your specifications. See the example below for a ChipLib register definition and the corresponding automatically generated C++ code.
             </p>
           {/*</div>*/}
           {/*<div className="col col--6">*/}

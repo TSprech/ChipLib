@@ -26,7 +26,7 @@ const FeatureList = [
     Svg: require('@site/static/img/generator_icon.svg').default,
     description: (
       <>
-        Generate consistent, clear libraries in any language, according to any library format from the ChipLib file.
+        Generate consistent, custom libraries in any language, according to any library format from the ChipLib file.
       </>
     ),
   },

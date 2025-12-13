@@ -20,7 +20,7 @@ const config = {
   },
 
   // Set the production url of your site here
-  url: 'https://tsprech.github.io/',
+  url: 'https://tsprech.github.io',
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
   baseUrl: '/ChipLib/',
@@ -87,13 +87,15 @@ const config = {
           src: 'img/logo.svg',
         },
         items: [
-          {
-            type: 'docSidebar',
-            sidebarId: 'tutorialSidebar',
-            position: 'left',
-            label: 'Specifications',
-          },
-          // {to: '/blog', label: 'Blog', position: 'left'},
+          // {
+          //   type: 'docSidebar',
+          //   sidebarId: 'tutorialSidebar',
+          //   position: 'left',
+          //   label: 'Docs',
+          // },
+          // {to: '/docs/tutorial-tmp1075n/intro', label: 'Tutorial', position: 'left'},
+          {to: '/docs/category/tutorial', label: 'Tutorial', position: 'left'},
+          {to: '/docs/category/specifications', label: 'Specifications', position: 'left'},
           {
             href: 'https://github.com/TSprech/ChipLib',
             label: 'GitHub',
@@ -110,6 +112,10 @@ const config = {
               {
                 label: 'Specifications',
                 to: '/docs/specifications/overview',
+              },
+              {
+                label: 'Tutorial',
+                to: '/docs/tutorial-tmp1075n/intro',
               },
             ],
           },
