@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_1" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 1080 1080">
+  <!-- Generator: Adobe Illustrator 30.0.0, SVG Export Plug-In . SVG Version: 2.1.1 Build 123)  -->
+  <g>
+    <rect x="137.5" y="137.5" width="805" height="805" rx="2.5" ry="2.5" fill="#fff"/>
+    <path d="M940,140v800H140V140h800M940,135H140c-2.8,0-5,2.2-5,5v800c0,2.8,2.2,5,5,5h800c2.8,0,5-2.2,5-5V140c0-2.8-2.2-5-5-5h0Z"/>
+  </g>
+  <rect x="190" y="777.5" width="350" height="25" fill="#333"/>
+  <rect x="190" y="827.5" width="350" height="25" fill="#333"/>
+  <rect x="190" y="877.5" width="350" height="25" fill="#333"/>
+  <rect x="190" y="727.5" width="350" height="25" fill="#333"/>
+  <rect x="265" y="627.5" width="200" height="25" fill="#333"/>
+  <rect x="265" y="290" width="200" height="300" rx="15" ry="15" fill="#1a1a1a"/>
+  <g>
+    <path d="M200,315h65v50h-65c-5.5,0-10-4.5-10-10v-30c0-5.5,4.5-10,10-10Z" fill="#b3b3b3"/>
+    <path d="M200,415h65v50h-65c-5.5,0-10-4.5-10-10v-30c0-5.5,4.5-10,10-10Z" fill="#b3b3b3"/>
+    <path d="M200,515h65v50h-65c-5.5,0-10-4.5-10-10v-30c0-5.5,4.5-10,10-10Z" fill="#b3b3b3"/>
+  </g>
+  <g>
+    <path d="M475,315h65v50h-65c-5.5,0-10-4.5-10-10v-30c0-5.5,4.5-10,10-10Z" transform="translate(1005 680) rotate(180)" fill="#b3b3b3"/>
+    <path d="M475,415h65v50h-65c-5.5,0-10-4.5-10-10v-30c0-5.5,4.5-10,10-10Z" transform="translate(1005 880) rotate(180)" fill="#b3b3b3"/>
+    <path d="M475,515h65v50h-65c-5.5,0-10-4.5-10-10v-30c0-5.5,4.5-10,10-10Z" transform="translate(1005 1080) rotate(180)" fill="#b3b3b3"/>
+  </g>
+  <rect x="590" y="177.5" width="300" height="25" fill="#333"/>
+  <rect x="590" y="227.5" width="300" height="25" fill="#333"/>
+  <rect x="590" y="277.5" width="300" height="25" fill="#333"/>
+  <rect x="590" y="327.5" width="300" height="25" fill="#333"/>
+  <rect x="590" y="377.5" width="300" height="25" fill="#333"/>
+  <rect x="590" y="427.5" width="300" height="25" fill="#333"/>
+  <rect x="590" y="477.5" width="300" height="25" fill="#333"/>
+  <rect x="590" y="527.5" width="300" height="25" fill="#333"/>
+  <rect x="590" y="577.5" width="300" height="25" fill="#333"/>
+  <rect x="590" y="627.5" width="300" height="25" fill="#333"/>
+  <rect x="590" y="677.5" width="300" height="25" fill="#333"/>
+  <rect x="590" y="727.5" width="300" height="25" fill="#333"/>
+  <rect x="590" y="777.5" width="300" height="25" fill="#333"/>
+  <rect x="590" y="827.5" width="300" height="25" fill="#333"/>
+  <rect x="590" y="877.5" width="300" height="25" fill="#333"/>
+  <circle cx="315" cy="340" r="20" fill="#fff"/>
+</svg>
