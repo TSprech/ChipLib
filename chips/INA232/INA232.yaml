@@ -1,0 +1,390 @@
+chip: INA232
+manufacturer: Texas Instruments
+description: "48-V, 16-Bit, Current, Voltage, and Power Monitor With an I2C Interface"
+interface: [ I2C, SMBus ]
+
+defaults:
+  register_width: 16
+  byte_order: big
+  access: [ r, w ]
+
+enums:
+  - symbol: ADCRANGE
+    values:
+      - name: Range 81 92 mV
+        value: 0b0
+        description: "±81.92 mV range"
+      - name: Range 20 48 mV
+        value: 0b1
+        description: "±20.48 mV range"
+
+  - symbol: AVG
+    values:
+      - name: Average 1
+        value: 0b000
+        description: "1 sample (No averaging)"
+      - name: Average 4
+        value: 0b001
+        description: "4 samples"
+      - name: Average 16
+        value: 0b010
+        description: "16 samples"
+      - name: Average 64
+        value: 0b011
+        description: "64 samples"
+      - name: Average 128
+        value: 0b100
+        description: "128 samples"
+      - name: Average 256
+        value: 0b101
+        description: "256 samples"
+      - name: Average 512
+        value: 0b110
+        description: "512 samples"
+      - name: Average 1024
+        value: 0b111
+        description: "1024 samples"
+
+  - symbol: CT
+    values:
+      - name: Time 140 us
+        value: 0b000
+        description: "140 µs conversion time"
+      - name: Time 204 us
+        value: 0b001
+        description: "204 µs conversion time"
+      - name: Time 332 us
+        value: 0b010
+        description: "332 µs conversion time"
+      - name: Time 588 us
+        value: 0b011
+        description: "588 µs conversion time"
+      - name: Time 1100 us
+        value: 0b100
+        description: "1100 µs conversion time"
+      - name: Time 2116 us
+        value: 0b101
+        description: "2116 µs conversion time"
+      - name: Time 4156 us
+        value: 0b110
+        description: "4156 µs conversion time"
+      - name: Time 8244 us
+        value: 0b111
+        description: "8244 µs conversion time"
+
+  - symbol: MODE
+    values:
+      - name: Shutdown
+        value: 0b000
+        description: "Shutdown"
+      - name: Single Shot Shunt Voltage
+        value: 0b001
+        description: "Triggered shunt voltage, single shot"
+      - name: Single Shot Bus Voltage
+        value: 0b010
+        description: "Triggered bus voltage, single shot"
+      - name: Single Shot Shunt and Bus
+        value: 0b011
+        description: "Triggered shunt and bus voltage, single shot"
+      - name: Shutdown Alternate
+        value: 0b100
+        description: "Shutdown alternate value"
+      - name: Continuous Shunt Voltage
+        value: 0b101
+        description: "Continuous shunt voltage"
+      - name: Continuous Bus Voltage
+        value: 0b110
+        description: "Continuous bus voltage"
+      - name: Continuous Shunt and Bus
+        value: 0b111
+        description: "Continuous shunt and bus voltage"
+
+  - symbol: ENABLE
+    values:
+      - name: Disable
+        value: 0b0
+        description: "Disables by writing a 0"
+      - name: Enable
+        value: 0b1
+        description: "Enables by writing a 1"
+
+  - symbol: MEMERR
+    values:
+      - name: No Error
+        value: 0b0
+        description: "No memory error"
+      - name: Error
+        value: 0b1
+        description: "A CRC or ECC memory error has occurred"
+
+  - symbol: ALTFUNCFLAG
+    values:
+      - name: No Alert
+        value: 0b0
+        description: "No alert has been triggered"
+      - name: Alert
+        value: 0b1
+        description: "Alert has been triggered"
+
+  - symbol: CVRFLAG
+    values:
+      - name: Not Ready
+        value: 0b0
+        description: "New conversion results are not available, so the previous results would be read"
+      - name: Ready
+        value: 0b1
+        description: "New conversion results are available to read"
+
+  - symbol: OVFLAG
+    values:
+      - name: No Overflow
+        value: 0b0
+        description: "Current and power data is arithmetically valid"
+      - name: Overflow
+        value: 0b1
+        description: "An arithmetic overflow has occurred, current and power may be invalid"
+
+  - symbol: APOL
+    values:
+      - name: Active Low
+        value: 0b0
+        description: "Normal, active low open-drain alert"
+      - name: Active High
+        value: 0b1
+        description: "Inverted, active high alert"
+
+  - symbol: LEN
+    values:
+      - name: Transparent
+        value: 0b0
+        description: "Alert pin and alert function flag resets when the fault condition is cleared"
+      - name: Latched
+        value: 0b1
+        description: "Alert pin and alert function flag remain active until LEN register flag is read"
+
+registers:
+  - address: 0x00
+    name: Configuration Register
+    symbol: CONFIG
+    reset: 0x4127
+    fields:
+      - name: Reset
+        symbol: RST
+        bits: [ 15, 15 ]
+        access: [ woset ]
+        description: "Set to 1 to generate a system reset. Self-clearing."
+
+      - name: ADC Range
+        symbol: ADCRANGE
+        bits: [ 12, 12 ]
+        enum: ADCRANGE
+        description: "Enables the selection of the shunt full scale input across IN+ and IN-"
+        reset: Range 81 92 mV
+
+      - name: Averaging
+        symbol: AVG
+        bits: [ 11, 9 ]
+        enum: AVG
+        description: "Sets the number of ADC conversion results to be averaged"
+        reset: Avg 1
+
+      - name: Bus Voltage Conversion Time
+        symbol: VBUSCT
+        bits: [ 8, 6 ]
+        enum: CT
+        description: "Sets the conversion time of the VBUS measurement"
+        reset: Time 1100 us
+
+      - name: Shunt Voltage Conversion Time
+        symbol: VSHCT
+        bits: [ 5, 3 ]
+        enum: CT
+        description: "Sets the conversion time of the SHUNT measurement"
+        reset: Time 1100 us
+
+      - name: Mode
+        symbol: MODE
+        bits: [ 2, 0 ]
+        enum: MODE
+        description: "Selects continuous, triggered, or shutdown mode"
+        reset: Continuous Shunt and Bus
+
+  - address: 0x01
+    name: Shunt Voltage Register
+    symbol: SHUNT_VOLTAGE
+    reset: 0x0000
+    fields:
+      - name: Shunt Voltage
+        symbol: VSHUNT
+        bits: [ 15, 0 ]
+        access: [ r ]
+        description: "Differential voltage measured across the shunt output. Two's complement."
+        format:
+          representation: tc
+          unit: "Volts"
+
+  - address: 0x02
+    name: Bus Voltage Register
+    symbol: BUS_VOLTAGE
+    reset: 0x0000
+    fields:
+      - name: Bus Voltage
+        symbol: VBUS
+        bits: [ 14, 0 ]
+        access: [ r ]
+        description: "Bus voltage measurement. Positive values only."
+        format:
+          representation: us
+          unit: "Volts"
+
+  - address: 0x03
+    name: Power Register
+    symbol: POWER
+    reset: 0x0000
+    fields:
+      - name: Power
+        symbol: POWER
+        bits: [ 15, 0 ]
+        access: [ r ]
+        description: "Calculated value of power in the system. This is an unsigned result."
+        format:
+          representation: us
+          unit: "Watts"
+
+  - address: 0x04
+    name: Current Register
+    symbol: CURRENT
+    reset: 0x0000
+    fields:
+      - name: Current
+        symbol: CURRENT
+        bits: [ 15, 0 ]
+        access: [ r ]
+        description: "Calculated current output in Amperes. Two's complement."
+        format:
+          representation: tc
+          unit: "Amperes"
+
+  - address: 0x05
+    name: Calibration Register
+    symbol: CALIBRATION
+    reset: 0x0000
+    fields:
+      - name: Shunt Calibration
+        symbol: SHUNT_CAL
+        bits: [ 14, 0 ]
+        description: "Programmed value needed for doing the shunt voltage to current conversion."
+
+  - address: 0x06
+    name: Mask Enable Register
+    symbol: MASK_ENABLE
+    reset: 0x0000
+    fields:
+      - name: Shunt Over Limit
+        symbol: SOL
+        bits: [ 15, 15 ]
+        enum: ENABLE
+        reset: Disable
+        description: "Setting this bit high configures the ALERT pin to be asserted if the shunt voltage conversion result exceeds the value programmed in the LIMIT register."
+
+      - name: Shunt Under Limit
+        symbol: SUL
+        bits: [ 14, 14 ]
+        enum: ENABLE
+        reset: Disable
+        description: "Setting this bit high configures the ALERT pin to be asserted if the shunt voltage conversion result is below the value programmed in the LIMIT register. Cannot be set if Shunt overlimit is set."
+
+      - name: Bus Over Limit
+        symbol: BOL
+        bits: [ 13, 13 ]
+        enum: ENABLE
+        reset: Disable
+        description: "Setting this bit high configures the ALERT pin to be asserted if the bus voltage conversion result exceeds the value programmed in the LIMIT register Cannot be set if Shunt overlimit or Shunt underlimit is set."
+
+      - name: Bus Under Limit
+        symbol: BUL
+        bits: [ 12, 12 ]
+        enum: ENABLE
+        reset: Disable
+        description: "Setting this bit high configures the ALERT pin to be asserted if the bus voltage conversion result is below the value programmed in the LIMIT register Cannot be set if Shunt over limit, Shunt under limit or Bus over limit is set."
+
+      - name: Power Over Limit
+        symbol: POL
+        bits: [ 11, 11 ]
+        enum: ENABLE
+        reset: Disable
+        description: "Setting this bit high configures the ALERT pin to be asserted if the power result exceeds the value programmed in the LIMIT register Cannot be set if Shunt over limit, Shunt under limit, Bus over limit or Bus under limit is set."
+
+      - name: Conversion Ready
+        symbol: CNVR
+        bits: [ 10, 10 ]
+        enum: ENABLE
+        reset: Disable
+        description: "Setting this bit high configures the ALERT pin to be asserted when the Conversion Ready Flag, Bit 3, is asserted indicating that the device is ready for the next conversion."
+
+      - name: Memory Error
+        symbol: MEMERROR
+        bits: [ 5, 5 ]
+        access: [ r ]
+        enum: MEMERR
+        reset: No Error
+        description: "CRC or ECC error"
+
+      - name: Alert Function Flag
+        symbol: AFF
+        bits: [ 4, 4 ]
+        access: [ r ]
+        enum: ALTFUNCFLAG
+        reset: No Alert
+        description: "Alert Function Flag -While only one Alert Function can be monitored at the ALERT pin at a time, the Conversion Ready can also be enabled to assert the ALERT pin. Reading the Alert Function Flag following an alert allows the user to determine if the Alert Function was the source of the Alert. When the Alert Latch Enable bit is set to Latch mode, the Alert Function Flag bit clears only when the Mask/Enable Register is read. When the Alert Latch Enable bit is set to Transparent mode, the Alert Function Flag bit is cleared following the next conversion that does not result in an Alert condition."
+
+      - name: Conversion Ready Flag
+        symbol: CVRF
+        bits: [ 3, 3 ]
+        access: [ r ]
+        enum: CVRFLAG
+        reset: Not Ready
+        description: "Although the device can be read at any time, and the data from the last conversion is available, the Conversion Ready Flag bit is provided to help coordinate one-shot or triggered conversions. The Conversion Ready Flag bit is set after all conversions, averaging, and multiplications are complete. Conversion Ready Flag bit clears under the following conditions: 1.) Writing to the Configuration Register (except for Power-Down selection) 2.) Reading the Mask/Enable Register."
+
+      - name: Math Overflow
+        symbol: OVF
+        bits: [ 2, 2 ]
+        access: [ r ]
+        enum: OVFLAG
+        reset: No Overflow
+        description: "This bit is set if an arithmetic operation resulted in an overflow error. It indicates that current and power data may be invalid."
+
+      - name: Alert Polarity
+        symbol: APOL
+        bits: [ 1, 1 ]
+        enum: APOL
+        reset: Active Low
+        description: "Sets the Alert pin polarity."
+
+      - name: Alert Latch Enable
+        symbol: LEN
+        bits: [ 0, 0 ]
+        enum: LEN
+        reset: Transparent
+        description: "When the Alert Latch Enable bit is set to Transparent mode, the Alert pin and Alert Function Flag (AFF) bit resets to the idle states when the fault condition has been cleared. When the Alert Latch Enable bit is set to Latch mode, the Alert pin and AFF bit remains active following a fault until this register flag has been read. This bit must be set to use the I2C Alert Response function."
+
+  - address: 0x07
+    name: Alert Limit Register
+    symbol: ALERT_LIMIT
+    reset: 0x0000
+    fields:
+      - name: Alert Limit
+        symbol: LIMIT
+        bits: [ 15, 0 ]
+        description: "Value used to compare to the register selected in the Mask/Enable Register. A two's complement value must be used for the Shunt Over Voltage limit. Limit values entered should match the format of the targeted register"
+
+  - address: 0x3E
+    name: Manufacturer ID Register
+    symbol: MAN_ID
+    reset: 0x5449
+    fields:
+      - name: Manufacturer ID
+        symbol: ID
+        bits: [ 15, 0 ]
+        access: [ r ]
+        description: "Reads back TI in ASCII (0x5449)"

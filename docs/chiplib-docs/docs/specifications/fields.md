@@ -21,13 +21,21 @@ Fields define the bit-packing layout within a register.
 
 ### Access Codes
 
-| Code    | Meaning                           |
-|:--------|:----------------------------------|
-| `r`     | Readable.                         |
-| `w`     | Writable.                         |
-| `woset` | Write-One-to-Set (Self-clearing). |
-| `w1c`   | Write-1-to-Clear.                 |
-| `rc`    | Read-to-Clear.                    |
+| Code    | Meaning                            | Explanation                                                                        |
+|:--------|:-----------------------------------|------------------------------------------------------------------------------------|
+| `na`    | No access                          | Generally should not be used, registers that have no access should not be included |
+| `r`     | Readable                           |                                                                                    |
+| `rclr`  | Read to Clear                      |                                                                                    |
+| `rset`  | Read to Set                        |                                                                                    |
+| `w`     | Writable                           |                                                                                    |
+| `woset` | Write 1 to Set (Self resetting)    | Denotes self resetting as typically writing a 1 performs a set                     |
+| `woclr` | Write 1 to Clear                   |                                                                                    |
+| `wotog` | Write 1 to Toggle                  |                                                                                    |
+| `wzset` | Write 0 to Set                     |                                                                                    |
+| `wzclr` | Write 0 to Clear  (Self resetting) | Denotes self resetting as typically writing a 0 performs a clear                   |
+| `wztog` | Write 0 to Toggle                  |                                                                                    |
+| `wclr`  | Write to Clear                     | Denotes writing any value causes a clear                                           |
+| `wset`  | Write to Set                       | Denotes writing any value causes a set                                             |
 
 ### Format Object Structure
 
