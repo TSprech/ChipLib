@@ -1,0 +1,125 @@
+# SPDX-FileCopyrightText: Copyright (c) 2025 TSprech
+#
+# SPDX-License-Identifier: MIT
+
+"""
+`{{ spec.chip | lower }}`
+================================================================================
+
+* **Chip:** {{ spec.chip }}
+* **Manufacturer:** {{ spec.manufacturer }}
+{{ spec.description }}
+
+**Software and Dependencies:**
+* Adafruit's Bus Device library: https://github.com/adafruit/Adafruit_CircuitPython_BusDevice
+* Adafruit's Register library: https://github.com/adafruit/Adafruit_CircuitPython_Register
+"""
+
+import time
+
+from adafruit_bus_device import i2c_device
+from adafruit_register.i2c_bit import ROBit, RWBit
+from adafruit_register.i2c_bits import ROBits, RWBits
+from adafruit_register.i2c_struct import ROUnaryStruct, UnaryStruct
+
+try:
+    from typing import Optional, Sequence, Tuple, Union
+    from busio import I2C
+except ImportError:
+    pass
+
+__version__ = "0.0.0+auto.0"
+__repo__ = "https://github.com"
+
+# --- Register Constants ---
+{%- for reg in spec.registers %}
+
+_{{ reg.symbol | upper }} = const(0x{{ '%X' % reg.address }})
+{%- endfor %}
+
+
+# --- Global Enum Definitions ---
+{% for enum in spec.enums %}
+class {{ enum.symbol }}_OPTIONS:
+    def __init__(self, value: int):
+        self.value = value
+
+{% for val in enum['values'] %}
+{{ enum.symbol }}_OPTIONS.{{ enum.symbol }}_{{ val.name | upper | replace(" ", "_") }} = {{ enum.symbol }}_OPTIONS({{ val.value }})
+""" {{ val.description }} """
+{% endfor %}
+
+{% endfor %}
+
+class {{ spec.chip }}:
+    """ {{ spec.description }} """
+    # --- Private Fields ---
+{% for reg in spec.registers %}
+    # Register: {{ reg.name }}
+    {% for field in reg.fields %}
+    {%- set width = field.bits[0] - field.bits[1] + 1 %}
+    {%- set offset = field.bits[1] %}
+    {%- set is_signed = field.format is defined and field.format.representation == 'tc' %}
+    {#  --- Resolve Access Rights --- #}
+    {%- if field.access is defined %}
+        {%- set access = field.access %}
+    {%- else %}
+        {%- set access = spec.defaults.access %}
+    {%- endif %}
+    {%- set is_read_only = 'r' in access and 'w' not in access %}
+    {#  --- Resolve Byte Order and Width --- #}
+    {%- set reg_bytes = (spec.defaults.register_width / 8) | int %}
+    {%- set lsb_first = 'True' if spec.defaults.byte_order == 'little' else 'False' %}
+    {#  --- Generate Private Descriptor --- #}
+    _{{ field.name | lower | replace(" ", "_") }} = {% if width == 1 %}{{ 'ROBit' if is_read_only else 'RWBit' }}(_{{ reg.symbol }}, {{ offset }}, {{ reg_bytes }}, lsb_first={{ lsb_first }})
+    {% else %}{{ 'ROBits' if is_read_only else 'RWBits' }}({{ width }}, _{{ reg.symbol }}, {{ offset }}, {{ reg_bytes }}, signed={{ 'True' if is_signed else 'False' }}, lsb_first={{ lsb_first }})
+    {% endif %}
+    {% endfor %}
+
+{% endfor %}
+
+    def __init__(self, i2c_bus: I2CDevice):
+        self.i2c_device = i2c_bus
+
+    # --- Public Properties ---
+{%- for reg in spec.registers %}
+    {%- for field in reg.fields %}
+    {%- set field_py_name = field.name | lower | replace(" ", "_") %}
+    {%- set private_name = "_" + field_py_name %}
+    {%- set doc_unit = field.format.unit if field.format is defined and field.format.unit else "" %}
+    {%- set lsb_weight = field.format.lsb_weight if field.format is defined and field.format.lsb_weight else 1 %}
+    {#  --- Resolve Access Rights --- #}
+    {%- if field.access is defined %}
+        {%- set access = field.access %}
+    {%- else %}
+        {%- set access = spec.defaults.access %}
+    {%- endif %}
+    {%- set is_read_only = 'r' in access and 'w' not in access %}
+    {%- set is_write_only = 'w' in access and 'r' not in access %}
+
+    @property
+    def {{ field_py_name }}(self):
+        """{{ field.description }}
+        {%- if doc_unit %} | Underlying units: {{ doc_unit }}{% endif %}"""
+        {% if lsb_weight != 1 %}
+        return self.{{ private_name }} * {{ lsb_weight }}
+        {% else %}
+        return self.{{ private_name }}
+        {% endif %}
+    {%- if not is_read_only %}
+
+    @{{ field_py_name }}.setter
+    def {{ field_py_name }}(self, value{% if field.enum %}: {{ field.enum }}_OPTIONS{%- endif %}):
+        {% if field.enum %}
+        if not isinstance(value, {{ field.enum }}_OPTIONS):
+            raise AttributeError("{{ field_py_name }} must be a `{{ field.enum }}`")
+        self.{{ private_name }} = value
+        {%- elif lsb_weight != 1 %}
+        self.{{ private_name }} = int(value / {{ lsb_weight }})
+        {%- else %}
+        self.{{ private_name }} = value
+        {%- endif %}
+
+    {% endif %}
+    {% endfor %}
+{% endfor %}

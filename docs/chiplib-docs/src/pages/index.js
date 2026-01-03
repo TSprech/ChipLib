@@ -35,14 +35,13 @@ auto Temperature() -> std::expected<uint16_t, std::error_code> {
   return this->temp_ & 0xFFF0 >> 4;
 }`;
 
-const pythonExample = `// Generated Python Module
-def temperature():
-    auto read_result = Read<uint16_t>(0x00);
-    if (!read_result) return std::unexpected(read_result.error());
-    
-    uint16_t value = read_result.value();
-    // Masking, shifting, and sign-extension handled automatically
-    return sign_extend_12bit( (value & 0xFFF0) >> 4 );`;
+const pythonExample = `# Register: Temperature
+_temperature = ROBits(12, _TEMP, 4, 2, signed=True, lsb_first=False)
+
+@property
+def temperature(self):
+    """12-bit, read-only register that stores the most recent temperature conversion results | Underlying units: Celsius"""
+    return self._temperature`;
 
 const cExample = `// Generated C Source
 int16_t Temperature(Device* device) {
@@ -96,9 +95,9 @@ function HighlightSection() {
              <div>
                 <CodeBlock language="cpp" title="Output: TMP1075N.cppm">{cppExample}</CodeBlock>
              </div>
-             {/*<div>*/}
-             {/*   <CodeBlock language="python" title="Output: TMP1075N.py">{pythonExample}</CodeBlock>*/}
-             {/*</div>*/}
+             <div>
+                <CodeBlock language="python" title="Output: TMP1075N.py">{pythonExample}</CodeBlock>
+             </div>
              {/*<div>*/}
              {/*   <CodeBlock language="c" title="Output: TMP1075N.h">{cExample}</CodeBlock>*/}
              {/*</div>*/}
